@@ -1,0 +1,44 @@
+1. Install python libraries from requirements.txt
+	- Use torch with cuda if applicable
+2. You can run the train.py script to retrain the model
+3. You can run the inference.py script to generate the motion given a bvh file.
+
+General Training Pipeline
+1. Load and process the motion of each bvh file
+2. Chunk motions to 2-frame samples
+3. For each training step:
+3.1 pass last full pose and current full pose to encoder to retrieve mu and logvar
+3.2 pass last full pose and current PARTIAL pose (root and End Effectors) to prior network to retrieve another set of mu and logvar
+3.3 retrieve z from encoder's mu and logvar
+3.4 pass z and current PARTIAL pose to decoder to predict full current pose (rotations)
+4. Losses:
+4.1 Reconstruction loss
+4.2 KL div loss (to align encoder's and prior network's latent spaces)
+
+
+General Inference Pipeline
+** We discard encoder. We use only prior net and decoder.
+1. pass last full pose and current PARTIAL pose (root and End Effectors) to prior network to retrieve mu and logvar
+2. retrieve z from mu and logvar
+3. run decoder to get the prediction
+4. apply fk to get positions so we can pass the pose back to the model to predict the next frame. (autoregressive)
+
+Structure:
+- Last full pose:
+-- center root pos to (0,0,0)
+-- convert other joints positions to root space
+-- root rotations in global space, other joints to local space (6d rotations)
+
+- Next full pose:
+-- root pose relative to Last full pose
+-- convert other joints positions to root space
+-- root rotations in global space, other joints to local space (6d rotations)
+
+- Next partial pose:
+-- Positions for root (global - relative to last pose) and hands & feet (local relative to root)
+
+
+Additional Notes:
+- All bvh motions are converted to Unreal's coordinate system (Z up, X forward)
+- All bvh values are in meters
+- We use a custom 19-joints skeleton. More joints reduce the performance.
