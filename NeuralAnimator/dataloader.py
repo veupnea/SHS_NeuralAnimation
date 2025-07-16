@@ -17,7 +17,7 @@ NUM_PARTIAL_JOINTS = 5
 GLOBAL_MUL = 0.1
 AVG_BONE_LENGTH = 3.64
 FPS = 30
-CMU_FILES = 1000 # Number of CMU files to use for training
+CMU_FILES = 250 # Number of CMU files to use for training
 PATHS = ["./Data/CMU_Zup_Xfor", "./Data/SHS_Zup_Xfor"]
 
 def read_and_process_bvh(file, is_inference=False):
