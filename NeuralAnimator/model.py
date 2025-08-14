@@ -187,7 +187,7 @@ def rec_loss(pred, target, fk_data):
     pred_joint_pos -= root_pos.unsqueeze(1)  # Convert to local space by subtracting root position
     joints_pos_loss = F.l1_loss(pred_joint_pos[:, 1:], joints_pos[:, 1:], reduction='mean')  # Position loss    
     joints_rot_loss = geodesic_so3_loss(pred_joints_rot, joints_rot[:, 1:])  # Rotation loss
-    joints_ee_pos_loss = F.mse_loss(pred_joint_pos[:, ee_indices, :], joints_pos[:, ee_indices, :], reduction='mean')  # End-effector positions
+    joints_ee_pos_loss = F.l1_loss(pred_joint_pos[:, ee_indices, :], joints_pos[:, ee_indices, :], reduction='mean')  # End-effector positions
     # - EE Rot Loss -
     pred_joints_rot_ee = pred_rot[:, ee_indices]
     joints_rot_ee = joints_rot[:, ee_indices]
@@ -197,9 +197,9 @@ def rec_loss(pred, target, fk_data):
     rec_loss = (
         2.0 * root_rot_loss +
         5.0 * joints_pos_loss +
-        2.0 * joints_rot_loss + 
+        3.0 * joints_rot_loss + 
         10.0 * joints_ee_pos_loss +
-        2.0 * joints_ee_rot_loss
+        4.0 * joints_ee_rot_loss
     )
     return rec_loss
 
